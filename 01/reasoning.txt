@@ -1,0 +1,68 @@
+For uniform-cost search on the Romania cities graph, the most efficient 
+adjacency-list structure in Java is one that optimizes what UCS actually does
+
+	- it repeatedly expands a node
+	- iterates all outgoing edges of that node
+	- needs each edge's neighbor and cost quickly
+	- needs fast lookup of the neighbor list for a given city
+	
+	=> the best choice for a Java implementation is a HashMap.
+	
+
+Reasoning
+
+	Fast neighbor retrieval
+	
+		- UCS expands a city and needs its adjacency list immediately
+		 -> HashMap gives expected O(1) access from city -> neighbors
+		 
+		Storing the city names as strings is okay, but an integer id system 
+		is even more efficient.
+		
+		
+	Fast edge iteration
+	
+		- When a node is expanded, all outgoing edges are iterated
+#1		 -> ArrayList<Edge> is very cache-friendly and has minimal per-element
+		    overhead compared to linked structures
+		 - Iterating ArrayList is tipically faster than LinkedList because it 
+1#         avoids "pointer chasing"
+
+
+	Graph is static
+	
+		- The Romania cities graph does not change during search
+		 -> no frequent insertions or deletions
+		
+#2		ArrayList is ideal when reading and iteration are the most used operations.
+
+
+	No membership tests
+	
+		- UCS does not ask whether "Arad connects to Sibiu" repeatedly,
+		  it just iterates edges
+		 -> a structure optimized for membership checks is not needed
+		 
+		 
+Conclusion
+
+	The most efficient variant with regards to speed and memory infers indexing
+	cities to integers.
+	
+		Arad = 0, Zerind = 1, etc.
+		
+	=> adjacency = List<Edge>[] 
+	 - an array indexed by city id
+	 - each List is an ArrayList<Edge>
+	 
+
+Explanations
+
+	#1 - 
+	
+	#2 - 
+
+	 
+Source
+
+	ChatGPT 5.2 - Prompt = "What is the most efficient data structure in Java to implement adjacency list for a graph in the context of the Romania cities problem and uniform-cost search? Do not give me implementation code. Explain your answer."

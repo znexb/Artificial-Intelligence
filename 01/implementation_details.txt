@@ -1,0 +1,64 @@
+Comparison of ArrayList<Edge>[] and List<Edge>[]
+
+	Performance
+	
+		ArrayList<Edge>[]
+		
+#1			- no interface indirection
+			- direct calls to ArrayList methods
+			- slightly faster iteration and access in hot loops
+			
+		List<Edge>[]
+		
+			- one level of indirection 
+			 -> through the List interface
+#2			- the JVM can usually inline this, but not always
+
+
+	Memory and Layout
+	
+		ArrayList<Edge>[]
+		
+			- exactly what is seen, no abstraction layer
+#3			- slightly lower memory overhead
+
+		List<Edge>[]
+		
+			- stores interface references
+			 -- concrete list still exists underneath
+			 
+			 
+	Flexibility
+	
+		ArrayList<Edge>[]
+		
+			- locked to ArrayList
+			 -> harder to swap implementations later
+			 
+		List<Edge>[]
+		
+			- can be replaced with LinkedList, ImmutableList, etc.
+			- cleaner API design
+			
+			
+	Suitability for UCS, Romania Cities Problem
+	
+		- graph is static
+		- operations include interate neighbours
+		- there is no need to swap list implementations
+		
+		Thus, the most efficient and appropiate choice is ArrayList<Edge>[].
+
+
+	Explanations
+	
+		#1 -
+		
+		#2 -
+		
+		#3 -
+		
+		
+	Sources
+	
+		ChatGPT 5.2 - Prompt = "I am okay with mapping cities to integer ids. Do a short ArrayList<Edge>[] vs List<Edge[] comparison."

@@ -1,0 +1,10 @@
+5	SMA*
+26  RBFS, 5 nodes
+17	Hill climbing with side stepping
+18	A*
+21	Uniform cost search
+
+FOR Romanian City problem from "Artificial Intelligence - A Modern Approach"
+
+=> 21 18 17 26 5
+	Java TypeScript JavaScript Python C
