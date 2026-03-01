@@ -22,5 +22,9 @@ public class App
         String input = readInput();
         Parser p = new Parser(input);
         graph = p.parse();
+
+        System.out.println(graph.length); // Number of cities
+        System.out.println(graph[0]); // List of outgoing edges from city 'u'
+        // Each edge inside graph[u] -> e.destinationId = neighbor, e.weight = cost
     }
 }

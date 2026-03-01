@@ -1,7 +1,5 @@
 package marko;
 
-import java.util.ArrayList;
-
 public class Edge {
     private byte destinationId;
     private short weight;
@@ -14,4 +12,7 @@ public class Edge {
     public void setDestinationId(byte destinationId) { this.destinationId = destinationId; }
 
     public void setWeight(short weight) { this.weight = weight; }
+
+    @Override
+    public String toString() { return "(" + destinationId + "," + weight + ")"; }
 }
