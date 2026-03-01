@@ -7,19 +7,20 @@ import java.io.IOException;
 
 public class App 
 {
-    private ArrayList<Edge>[] graph;
+    private static ArrayList<Edge>[] graph;
 
-    private static void readInput() throws IOException {
+    private static String readInput() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         System.out.print("Graph: ");
 
         String input = reader.readLine();
-        input = raw.replace(" ", "");
-        System.out.println("Normalization: " + input);
+        return input;
     }
 
     public static void main( String[] args ) throws IOException {
-        readInput();
+        String input = readInput();
+        Parser p = new Parser(input);
+        graph = p.parse();
     }
 }

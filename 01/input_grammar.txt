@@ -1,8 +1,8 @@
 Grammar for input
 
-	PGB   := '[' SGB* ']'
-	SGB   := '[' RB*  ']'
-	RB    := '(' (PAIR)? ')'
+	PGB   := '[' (SGB (',' SGB)*)? ']'
+	SGB   := '[' (RB (',' RB)*)? ']'
+	RB    := '(' PAIR ')'
 	PAIR  := BYTE ',' SHORT
 	
 	BYTE  := SIGNED_INT   // with semantic check: -128..127
