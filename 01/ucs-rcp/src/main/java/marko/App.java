@@ -2,7 +2,6 @@ package marko;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -10,8 +9,8 @@ import java.io.IOException;
 public class App 
 {
     private static ArrayList<Edge>[] graph;
-    private static Byte initialState;
-    private static Byte finalState;
+    private static byte initialStateId;
+    private static byte finalStateId;
 
     private static String readStringInput() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -21,27 +20,27 @@ public class App
 
 
     private final short UCS() {
-        PriorityQueue<Edge> pq = initializePriorityQueue();
-        boolean[] visited = new boolean[graph.length];
-        short cost = 0;
-        while(!pq.isEmpty()) {
-            Edge current = pq.poll();                       // Get lowest cost edge from the priority queue
-            byte currentId = current.getDestinationId();    // Save the destionation id of said node
-            if (currentId == finalState)                    // If it is the goal
+        PriorityQueue<Byte> frontier = initializePriorityQueue();   // Initiliaze priority queue to be used
+        boolean[] explored = new boolean[graph.length];             // Array of visited nodes -- a sort of frequency array
+        short cost = 0;                                             // Cost
+        while(!frontier.isEmpty()) {
+            byte currentEdgeId = frontier.poll();           // Get id of node in queue
+            if (currentEdgeId == finalStateId)              // If it is the goal
                 return cost;                                //      Return the cost
-            if (visited[currentId]) { continue; }           // If node is in visited, continue
-            visited [currentId] = true;                     // Set it as visited
-            for (Edge edge : graph[currentId]) {
-                cost += edge.getWeight();
-                if (!visited[edge.getDestinationId()]) pq.add(edge);
+            if (explored[currentEdgeId]) { continue; }       // If node is in visited, continue
+            explored [currentEdgeId] = true;                 // Set it as visited
+            for (Edge edge : graph[currentEdgeId]) {        // For every neighbour of current node
+                cost += edge.getWeight();                   // Add cost
+                if (!explored[edge.getDestinationId()])      // If it is not visited
+                    frontier.add(edge.getDestinationId());  // Add it to the frontier
             }
         }
         return -1;
     }
 
-    private PriorityQueue<Edge> initializePriorityQueue() {
-        PriorityQueue<Edge> pq = new PriorityQueue<Edge>();
-        for(Edge e : graph[initialState]) { pq.add(e); } 
+    private PriorityQueue<Byte> initializePriorityQueue() { 
+        PriorityQueue<Byte> pq = new PriorityQueue<Byte>();
+        pq.add(initialStateId);
         return pq;
     }
 
@@ -56,12 +55,12 @@ public class App
 
         OutputDevice.print("Enter the initial node (the city one finds themselves in): ");
         input = readStringInput(); // Initial state
-        initialState = Byte.parseByte(input);
+        initialStateId = Byte.parseByte(input);
         OutputDevice.endl();
 
         OutputDevice.print("Enter the goal node (the city to get to): ");
         input = readStringInput();
-        finalState = Byte.parseByte(input);
+        finalStateId = Byte.parseByte(input);
         OutputDevice.endl();
     }
 }
