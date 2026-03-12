@@ -15,17 +15,17 @@ public class OutputDevice {
         endl();
     }
 
-    private static void printGraphInput(ArrayList<Edge>[] graph) {
+    private static void printGraphInput(ArrayList<Edge>[] graph, short graphSize) {
         println("Graph: ");
         printGraph(graph);
-        println(graph.length); // Number of cities
+        println(graphSize); // Number of cities
     }
 
-    public static void printGraphInformation(ArrayList<Edge>[] graph) {
+    public static void printGraphInformation(ArrayList<Edge>[] graph, short graphSize) {
         endl();
-        printGraphInput(graph);
-        println(graph[0]); // List of outgoing edges from city 'u'
-        // Each edge inside graph[u] -> e.destinationId = neighbor, e.weight = cost
+        printGraphInput(graph, graphSize);
+        // println(graph[0]); List of outgoing edges from city '0'
+        // Each edge inside graph[0] -> e.destinationId = neighbor, e.weight = cost
         endl();
     }
 
