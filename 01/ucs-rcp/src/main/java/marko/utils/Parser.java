@@ -1,7 +1,9 @@
-package marko;
+package marko.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import marko.models.Edge;
 
 public class Parser {
     private final String s;

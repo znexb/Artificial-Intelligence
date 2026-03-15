@@ -1,7 +1,9 @@
-package marko;
+package marko.utils.io;
 
-import java.util.ArrayList;
 import java.util.PriorityQueue;
+
+import marko.models.Edge;
+import marko.models.Graph;
 
 public class OutputDevice {
     public static void println(Object o) { System.out.println(o); }
@@ -10,20 +12,12 @@ public class OutputDevice {
 
     public static void endl() { System.out.println(); }
 
-    private static void printGraph(ArrayList<Edge>[] graph) {
-        for(ArrayList<Edge> e : graph) { print(e + " "); }
-        endl();
-    }
 
-    private static void printGraphInput(ArrayList<Edge>[] graph, short graphSize) {
+    public static void printGraphInformation(Graph graph) {
+        endl();
         println("Graph: ");
-        printGraph(graph);
-        println(graphSize); // Number of cities
-    }
-
-    public static void printGraphInformation(ArrayList<Edge>[] graph, short graphSize) {
-        endl();
-        printGraphInput(graph, graphSize);
+        println(graph);
+        println("Number of nodes " + graph.getSize());
         // println(graph[0]); List of outgoing edges from city '0'
         // Each edge inside graph[0] -> e.destinationId = neighbor, e.weight = cost
         endl();

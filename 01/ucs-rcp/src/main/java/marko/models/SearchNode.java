@@ -1,4 +1,4 @@
-package marko;
+package marko.models;
 
 public class SearchNode implements Comparable<SearchNode> {
     private byte id;

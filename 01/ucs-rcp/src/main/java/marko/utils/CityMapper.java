@@ -1,4 +1,4 @@
-package marko;
+package marko.utils;
 
 import java.util.HashMap;
 import java.util.Map;

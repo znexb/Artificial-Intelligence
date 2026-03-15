@@ -1,4 +1,4 @@
-package marko;
+package marko.models;
 
 public class Edge implements Comparable<Edge>{
     private byte destinationId;
@@ -17,10 +17,11 @@ public class Edge implements Comparable<Edge>{
 
     public short getWeight() { return weight; }
 
-    @Override
-    public String toString() { return "(" + destinationId + "," + weight + ")"; }
 
     public int compareTo(Edge other) {
         short otherWeight = other.getWeight(); return weight < otherWeight ? -1 : weight > otherWeight ? 1 : 0;
     }
+
+    @Override
+    public String toString() { return "(" + destinationId + "," + weight + ")"; }
 }
