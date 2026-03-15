@@ -21,15 +21,15 @@ public class UniformCostSearch {
             if (currentCost > bestCost[currentNodeId])      // If cost of current node is 'outdated'
                 continue;                                   //      Skip
             if (currentNodeId == finalStateId)              // If current node is the goal
-                return currentNode.getCost();               //      Return the cummulative cost
+                return currentCost;                         //      Return the cummulative cost
             if (currentAdjacencyList.isEmpty())             // If node has no neighbours
                 continue;                                   //      Skip
             for (Edge edge : currentAdjacencyList) {        // For every neighbour of current node
                 byte neighbourId = edge.getDestinationId();
                 short newCost = (short) (edge.getWeight() + currentCost);
                 if (newCost < bestCost[neighbourId]) {                  // If new computed cost is 'better' than that of the neighbour
+                    bestCost[neighbourId] = newCost;
                     frontier.add(new SearchNode(neighbourId, newCost)); // Add it to the frontier
-                    bestCost[currentNodeId] = newCost;
                 }
             }
         }

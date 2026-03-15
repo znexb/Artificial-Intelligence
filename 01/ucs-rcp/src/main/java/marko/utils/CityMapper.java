@@ -1,11 +1,13 @@
 package marko.utils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import marko.utils.io.OutputDevice;
+
 public class CityMapper {
-    private static Map<String, Byte> table = new HashMap<>();
-    private static String[] cities = {"Oradea", "Zerind", "Arad", "Timisoara", "Lugoj", "Mehadia", "Drobeta", "Sibiu", "Rimnicu Valcea", "Fagaras", "Pitesti", "Giurgiu", "Bucharest", "Urziceni", "Vaslui", "Iasi", "Neamt", "Hirsova", "Eforie"};
+    private static Map<String, Byte> table = new LinkedHashMap<>();
+    private static String[] cities = {"Oradea", "Zerind", "Arad", "Timisoara", "Lugoj", "Mehadia", "Drobeta", "Sibiu", "Rimnicu Valcea", "Craiova", "Fagaras", "Pitesti", "Giurgiu", "Bucharest", "Urziceni", "Vaslui", "Iasi", "Neamt", "Hirsova", "Eforie"};
 
     static {
         Byte id = 0;
@@ -14,5 +16,11 @@ public class CityMapper {
         }
     }
 
-    public static int convert(String s) { return table.getOrDefault(s, Integer.valueOf(-1).byteValue()); }
+    public static byte convert(String s) { return table.getOrDefault(s, Integer.valueOf(-1).byteValue()); }
+
+    public static void printMap() { 
+        for(Map.Entry<String, Byte> entry : table.entrySet()) {
+            OutputDevice.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
 }

@@ -24,7 +24,9 @@ public class Console {
         indent(); OutputDevice.print("3. Enter a saved graph");
         indent((byte) 2); OutputDevice.println("- to be implemented!");
         indent(); OutputDevice.println("4. Quit");
+        OutputDevice.endl();
         printOptionsPattern();
+        OutputDevice.endl();
     }
 
     static private void printOptionsPattern() { printPattern("=", (byte) 23); }

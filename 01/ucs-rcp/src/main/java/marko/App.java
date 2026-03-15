@@ -2,39 +2,12 @@ package marko;
 
 import java.io.IOException;
 
-import marko.models.Graph;
+import marko.options.CustomGraph;
+import marko.options.RomaniaCities;
 import marko.ui.Console;
 import marko.utils.io.InputDevice;
-import marko.utils.io.OutputDevice;
 
-public class App 
-{
-    private static Graph graph;
-    private static byte initialStateId;
-    private static byte finalStateId;
-
-    private static void inputGraph() throws IOException {
-        OutputDevice.print("Enter the base graph: ");
-        String input = InputDevice.readString();
-        graph = new Graph(input);
-        
-        OutputDevice.printGraphInformation(graph);
-
-        OutputDevice.print("Enter the initial node (the city one finds themselves in): ");
-        input = InputDevice.readString();
-        initialStateId = Byte.parseByte(input);
-        OutputDevice.endl();
-
-        OutputDevice.print("Enter the goal node (the city to get to): ");
-        input = InputDevice.readString();
-        finalStateId = Byte.parseByte(input);
-        OutputDevice.endl();
-
-        OutputDevice.print("UCS cost ::: ");
-        OutputDevice.print(UniformCostSearch.computeCostFromAtoB(graph, initialStateId, finalStateId));
-        OutputDevice.endl();
-    }
-
+public class App {
     private static void quit() { System.exit(0); }
 
     public static void main(String[] args) throws IOException {
@@ -43,9 +16,16 @@ public class App
         while (true) {
             byte option = InputDevice.readByte();
             switch (option) {
-                case 2:
-                    inputGraph();
+                case 1: {
+                    RomaniaCities app = new RomaniaCities();
+                    app.run();
                     break;
+                }
+                case 2: {
+                    CustomGraph app = new CustomGraph();
+                    app.run();
+                    break;
+                }
                 default: 
                     quit();
                     break;

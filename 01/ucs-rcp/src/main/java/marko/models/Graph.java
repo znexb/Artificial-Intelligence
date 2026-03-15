@@ -8,10 +8,12 @@ public class Graph {
     private ArrayList<Edge>[] graph;
     private byte size = -1;             // -1 means that it was not computed yet. = sentinel value
 
-    private Graph(byte graphSize) {
+    public Graph(byte size) {
         @SuppressWarnings("unchecked")
-        ArrayList<Edge>[] graph = (ArrayList<Edge>[]) new ArrayList[graphSize];
-        for(byte i = 0; i < graphSize; ++i) { graph[i] = new ArrayList<Edge>(); }
+        ArrayList<Edge>[] temp = (ArrayList<Edge>[]) new ArrayList[size];
+        this.graph = temp;
+        for(byte i = 0; i < size; ++i) { this.graph[i] = new ArrayList<Edge>(); }
+        this.size = size;
     }
 
     public Graph(String s) { // Constructor from String; alternative to fromString 
@@ -21,6 +23,20 @@ public class Graph {
         graph = processRawGraph(rawGraph);
     }
 
+
+    private void add(ArrayList<Edge> list) {
+        byte i = 0;
+        while(!graph[i].isEmpty()) { ++i; }
+        graph[i] = list;
+    } 
+
+    public void addNode(int... values) {
+        ArrayList<Edge> list = new ArrayList<>();
+        for(byte i = 0; i < values.length; i += 2) {
+            list.add(new Edge((byte) values[i], (short) values[i + 1]));
+        }
+        add(list);
+    }
 
     public static Graph fromString(String s) { // Converts a string to a graph
         ArrayList<Edge>[] rawGraph;
