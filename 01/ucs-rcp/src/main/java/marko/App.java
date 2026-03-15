@@ -3,6 +3,7 @@ package marko;
 import java.io.IOException;
 
 import marko.models.Graph;
+import marko.ui.Console;
 import marko.utils.io.InputDevice;
 import marko.utils.io.OutputDevice;
 
@@ -12,7 +13,7 @@ public class App
     private static byte initialStateId;
     private static byte finalStateId;
 
-    public static void main( String[] args ) throws IOException {
+    private static void inputGraph() throws IOException {
         OutputDevice.print("Enter the base graph: ");
         String input = InputDevice.readString();
         graph = new Graph(input);
@@ -32,5 +33,23 @@ public class App
         OutputDevice.print("UCS cost ::: ");
         OutputDevice.print(UniformCostSearch.computeCostFromAtoB(graph, initialStateId, finalStateId));
         OutputDevice.endl();
+    }
+
+    private static void quit() { System.exit(0); }
+
+    public static void main(String[] args) throws IOException {
+        Console.header();
+        Console.options();
+        while (true) {
+            byte option = InputDevice.readByte();
+            switch (option) {
+                case 2:
+                    inputGraph();
+                    break;
+                default: 
+                    quit();
+                    break;
+            }
+        }
     }
 }

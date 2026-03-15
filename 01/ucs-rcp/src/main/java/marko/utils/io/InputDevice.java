@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class InputDevice {
-    public static String readString() throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String input = reader.readLine();
-        return input;
-    }
+    private static final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+    private static String readLine() throws IOException { return reader.readLine(); }
+
+    public static String readString() throws IOException { return readLine(); }
+
+    public static byte readByte() throws IOException { return Byte.parseByte(readLine()); }
 }

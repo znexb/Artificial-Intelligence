@@ -1,8 +1,10 @@
 D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\App.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\CityMapper.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\Edge.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\Graph.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\OutputDevice.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\Parser.java
-D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\SearchNode.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\models\Edge.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\models\Graph.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\models\SearchNode.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\ui\Console.java
 D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\UniformCostSearch.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\utils\CityMapper.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\utils\io\InputDevice.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\utils\io\OutputDevice.java
+D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\src\main\java\marko\utils\Parser.java
