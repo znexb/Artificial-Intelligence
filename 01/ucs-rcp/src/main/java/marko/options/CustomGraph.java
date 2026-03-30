@@ -2,8 +2,9 @@ package marko.options;
 
 import java.io.IOException;
 
-import marko.UniformCostSearch;
 import marko.models.Graph;
+import marko.utils.GraphUtils;
+import marko.utils.Json;
 import marko.utils.io.InputDevice;
 import marko.utils.io.OutputDevice;
 
@@ -15,9 +16,10 @@ public class CustomGraph {
     public void run() throws IOException {     
         inputGraph();   
         OutputDevice.printGraphInformation(graph);
-        inputStartNodeId();
-        inputFinalNodeId();
-        runUCS();
+        startNodeId = GraphUtils.inputStartNodeId();
+        finalNodeId = GraphUtils.inputFinalNodeId();
+        GraphUtils.runUCS(graph, startNodeId, finalNodeId);
+        saveOption();
     }
 
     private void inputGraph() throws IOException {
@@ -27,23 +29,25 @@ public class CustomGraph {
         graph = new Graph(input);
     }
 
-    private void inputStartNodeId() throws IOException {
-        OutputDevice.print("Enter the initial node: ");
-        String input = InputDevice.readString();
-        startNodeId = Byte.parseByte(input);
+    private void saveOption() throws IOException {
         OutputDevice.endl();
-    }
+        OutputDevice.print("Save input graph? (y/n): ");
+        String input = InputDevice.readString().trim().toLowerCase();
 
-    private void inputFinalNodeId() throws IOException {
-        OutputDevice.print("Enter the goal node: ");
-        String input = InputDevice.readString();
-        finalNodeId = Byte.parseByte(input);
-        OutputDevice.endl();
-    }
+        boolean shouldSave;
 
-    private void runUCS() {
-        OutputDevice.print("UCS cost ::: ");
-        OutputDevice.print(UniformCostSearch.computeCostFromAtoB(graph, startNodeId, finalNodeId));
-        OutputDevice.endl();
+        if (input.equals("y"))      shouldSave = true;
+        else if (input.equals("n")) shouldSave = false;
+        else {
+            try {
+                shouldSave = Byte.parseByte(input) == 1;
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid input: expected y/n or 1/0");
+            }
+        }
+
+        if (shouldSave) {
+            Json.appendGraphToFile(graph, "data/graphs.json");
+        }
     }
 }

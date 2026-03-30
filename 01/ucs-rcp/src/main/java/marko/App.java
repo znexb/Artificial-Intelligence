@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import marko.options.CustomGraph;
 import marko.options.RomaniaCities;
+import marko.options.SavedGraph;
 import marko.ui.Console;
 import marko.utils.io.InputDevice;
 
@@ -20,13 +21,15 @@ public class App {
                     RomaniaCities app = new RomaniaCities();
                     app.run();
                     break;
-                }
-                case 2: {
+                } case 2: {
                     CustomGraph app = new CustomGraph();
                     app.run();
                     break;
-                }
-                default: 
+                } case 3: {
+                    SavedGraph app = new SavedGraph();
+                    app.run();
+                    break;
+                } default: 
                     quit();
                     break;
             }

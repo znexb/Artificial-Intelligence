@@ -55,20 +55,14 @@ public class RomaniaCities {
     private void inputStartCity() throws IOException {
         OutputDevice.print("Enter the starting city: ");
         String input = InputDevice.readString().trim();
-
-        try {
-            startCityId = Byte.parseByte(input);
-        } catch (NumberFormatException e) {
-            startCityId = CityMapper.convert(input);
-        }
-        
+        startCityId = InputDevice.dualInput(input);
         OutputDevice.endl();
     }
 
     private void inputFinalCity() throws IOException {
         OutputDevice.print("Enter the destination city: ");
-        String input = InputDevice.readString();
-        finalCityId = CityMapper.convert(input);
+        String input = InputDevice.readString().trim();
+        finalCityId = InputDevice.dualInput(input);
         OutputDevice.endl();
     }
 

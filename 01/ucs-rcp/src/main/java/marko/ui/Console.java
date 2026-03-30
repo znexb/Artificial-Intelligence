@@ -22,7 +22,7 @@ public class Console {
         indent(); OutputDevice.print("2. Enter a custom graph");
         indent((byte) 2); OutputDevice.println("- for formatting, please check out \"example_input.txt\" and \"input_grammar.txt\"!");
         indent(); OutputDevice.print("3. Enter a saved graph");
-        indent((byte) 2); OutputDevice.println("- to be implemented!");
+        indent((byte) 2); OutputDevice.println("- choose one of the pre-saved graphs!");
         indent(); OutputDevice.println("*. Quit");
         OutputDevice.endl();
         printOptionsPattern();
