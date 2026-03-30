@@ -30,6 +30,7 @@ public class App {
                     quit();
                     break;
             }
+            Console.notifyRepeat();
         }
     }
 }

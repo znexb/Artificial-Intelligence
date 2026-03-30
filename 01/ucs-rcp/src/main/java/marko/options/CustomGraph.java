@@ -21,6 +21,7 @@ public class CustomGraph {
     }
 
     private void inputGraph() throws IOException {
+        OutputDevice.endl();
         OutputDevice.print("Enter the base graph: ");
         String input = InputDevice.readString();
         graph = new Graph(input);

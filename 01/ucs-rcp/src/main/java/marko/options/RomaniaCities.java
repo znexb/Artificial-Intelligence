@@ -1,11 +1,8 @@
 package marko.options;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import marko.UniformCostSearch;
-import marko.models.Edge;
 import marko.models.Graph;
 import marko.utils.CityMapper;
 import marko.utils.io.InputDevice;
@@ -57,8 +54,14 @@ public class RomaniaCities {
 
     private void inputStartCity() throws IOException {
         OutputDevice.print("Enter the starting city: ");
-        String input = InputDevice.readString();
-        startCityId = CityMapper.convert(input);
+        String input = InputDevice.readString().trim();
+
+        try {
+            startCityId = Byte.parseByte(input);
+        } catch (NumberFormatException e) {
+            startCityId = CityMapper.convert(input);
+        }
+        
         OutputDevice.endl();
     }
 

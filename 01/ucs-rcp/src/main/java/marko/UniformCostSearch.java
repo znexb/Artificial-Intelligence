@@ -14,7 +14,7 @@ public class UniformCostSearch {
         PriorityQueue<SearchNode> frontier = initializePriorityQueue(initialStateId);   // Initiliaze priority queue to be used
         short[] bestCost = initializeBestCost(graph.getSize(), initialStateId);         // Initializes the bestCost array, which is used to store 'explored' nodes based on cost
         while(!frontier.isEmpty()) {
-            SearchNode currentNode = frontier.poll();       // Get id of node in queue
+            SearchNode currentNode = frontier.poll();       // Get node in front of queue
             byte currentNodeId     = currentNode.getId();
             short currentCost      = currentNode.getCost();
             ArrayList<Edge> currentAdjacencyList = graph.getAdjacencyListOf(currentNodeId);

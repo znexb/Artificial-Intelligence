@@ -23,7 +23,16 @@ public class Console {
         indent((byte) 2); OutputDevice.println("- for formatting, please check out \"example_input.txt\" and \"input_grammar.txt\"!");
         indent(); OutputDevice.print("3. Enter a saved graph");
         indent((byte) 2); OutputDevice.println("- to be implemented!");
-        indent(); OutputDevice.println("4. Quit");
+        indent(); OutputDevice.println("*. Quit");
+        OutputDevice.endl();
+        printOptionsPattern();
+        OutputDevice.endl();
+    }
+
+    static public void notifyRepeat() {
+        OutputDevice.endl();
+        printOptionsPattern();
+        OutputDevice.print("Enter a new option!");
         OutputDevice.endl();
         printOptionsPattern();
         OutputDevice.endl();
