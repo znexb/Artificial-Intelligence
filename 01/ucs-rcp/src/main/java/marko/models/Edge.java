@@ -1,6 +1,6 @@
 package marko.models;
 
-public class Edge implements Comparable<Edge>{
+public class Edge implements Comparable<Edge> {
     private byte destinationId;
     private short weight;
 

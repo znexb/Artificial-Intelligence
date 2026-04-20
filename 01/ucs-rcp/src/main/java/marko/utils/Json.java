@@ -1,8 +1,10 @@
 package marko.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -144,16 +146,27 @@ public class Json {
     }
 
     private static List<String> readRawGraphs(String filePath) throws IOException {
-        Path path = Path.of(filePath);
+        String content = null;
+        
+        // Try to read from classpath resource (for JAR/exe)
+        InputStream is = Json.class.getClassLoader().getResourceAsStream(filePath);
+        if (is != null) {
+            content = new String(is.readAllBytes()).trim();
+            is.close();
+        } else {
+            // Fall back to file system (for development)
+            Path path = Paths.get(filePath);
+            if (!Files.exists(path) || Files.size(path) == 0) {
+                return new ArrayList<>();
+            }
+            content = Files.readString(path).trim();
+        }
+
+        if (content == null || content.length() <= 2) {
+            return new ArrayList<>();
+        }
 
         List<String> result = new ArrayList<>();
-
-        if (!Files.exists(path) || Files.size(path) == 0) return result;
-
-        String content = Files.readString(path).trim();
-
-        if (content.length() <= 2) return result;
-
         content = content.substring(1, content.length() - 1); // remove []
 
         int i = 0;
