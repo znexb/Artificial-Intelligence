@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIPS FSM — Code Explanation</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e2a;
+    --border: #252a38;
+    --accent: #5af0a0;
+    --accent2: #5ab4f0;
+    --accent3: #f0a05a;
+    --text: #dde3f0;
+    --muted: #6b7594;
+    --keyword: #5ab4f0;
+    --comment: #5af0a0;
+    --string: #f0a05a;
+    --var: #e87dff;
+    --rule: #ff6b8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 64px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Syne Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab-btn.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* Panel */
+  .panel { display: none; animation: fadeUp 0.4s ease both; }
+  .panel.active { display: block; }
+
+  /* Section */
+  .section {
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .section-header:hover { background: #1e2233; }
+
+  .section-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    flex: 1;
+  }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.25s;
+  }
+
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0;
+  }
+
+  .section.open .section-body { display: block; }
+
+  /* Code block with line annotations */
+  .annotated-code {
+    font-family: 'Syne Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .code-line {
+    display: flex;
+    min-height: 28px;
+    transition: background 0.15s;
+  }
+
+  .code-line:hover { background: rgba(90, 240, 160, 0.04); }
+
+  .code-line.highlighted {
+    background: rgba(90, 240, 160, 0.08);
+    border-left: 2px solid var(--accent);
+  }
+
+  .line-num {
+    width: 40px;
+    padding: 0 12px 0 16px;
+    color: var(--muted);
+    font-size: 11px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-right: 1px solid var(--border);
+    margin-right: 16px;
+    opacity: 0.5;
+  }
+
+  .line-content {
+    flex: 1;
+    padding: 0 16px 0 0;
+    display: flex;
+    align-items: center;
+    white-space: pre;
+  }
+
+  /* Syntax colours */
+  .kw  { color: var(--keyword); font-weight: 600; }
+  .cm  { color: var(--comment); font-style: italic; }
+  .st  { color: var(--string); }
+  .vr  { color: var(--var); }
+  .rl  { color: var(--rule); font-weight: 600; }
+  .op  { color: #ff6b8a; }
+  .pl  { color: var(--text); }
+
+  /* Explanation card */
+  .explain-card {
+    margin: 0;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .explain-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .explain-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #b0bcd4;
+  }
+
+  .explain-text strong { color: var(--text); }
+  .explain-text code {
+    font-family: 'Syne Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--accent3);
+  }
+
+  /* Arc table */
+  .arc-table-wrap {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  td {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(90, 240, 160, 0.03); }
+
+  .arrow { color: var(--accent3); font-weight: 700; }
+  .input-badge {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 8px;
+    color: var(--accent2);
+    font-size: 11px;
+  }
+
+  /* Summary callout */
+  .callout {
+    display: flex;
+    gap: 16px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    background: rgba(90, 240, 160, 0.04);
+  }
+
+  .callout-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+
+  .callout-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #b0bcd4;
+  }
+
+  .callout-text strong { color: var(--accent); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .flow-node.start { border-color: var(--accent2); color: var(--accent2); }
+  .flow-node.end   { border-color: var(--accent);  color: var(--accent); }
+  .flow-node.error { border-color: var(--rule);    color: var(--rule); }
+
+  .flow-arrow {
+    color: var(--muted);
+    font-size: 16px;
+    padding: 0 4px;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Exercise 8.9 · CLIPS · FSM</div>
+    <h1>Code <span>Explained</span></h1>
+    <p class="subtitle">A line-by-line walkthrough of both finite state machine implementations in CLIPS.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('vm')">🪙 Vending Machine</button>
+    <button class="tab-btn" onclick="switchTab('sv')">🔤 String Validator</button>
+  </div>
+
+  <!-- ═══════════════════════ VENDING MACHINE ═══════════════════════ -->
+  <div class="panel active" id="panel-vm">
+
+    <!-- PART 1: Templates -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">1</div>
+        <div class="section-title">Templates — Defining the Data Structures</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line highlighted">
+            <div class="line-num">1</div>
+            <div class="line-content"><span class="cm">;;; Templates</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">2</div>
+            <div class="line-content"><span class="op">(</span><span class="kw">deftemplate</span> <span class="rl">state</span> <span class="op">(</span><span class="kw">slot</span> name<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">3</div>
+            <div class="line-content"><span class="op">(</span><span class="kw">deftemplate</span> <span class="rl">arc</span> <span class="op">(</span><span class="kw">slot</span> from<span class="op">)</span> <span class="op">(</span><span class="kw">slot</span> to<span class="op">)</span> <span class="op">(</span><span class="kw">slot</span> input<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">What this does</div>
+          <div class="explain-text">
+            <code>deftemplate</code> works like a struct in C — it defines the <strong>shape of a fact</strong>.<br><br>
+            • <code>(deftemplate state (slot name))</code> — creates a fact type with one field: <strong>name</strong>. At any moment, exactly one <code>state</code> fact exists in memory, holding the machine's current state (e.g. <code>start</code>, <code>s5</code>, <code>success</code>).<br><br>
+            • <code>(deftemplate arc (slot from) (slot to) (slot input))</code> — creates a fact type with three fields describing a <strong>transition</strong>: where you come from, where you go, and what input triggers it.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 2: Transition Rule -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">2</div>
+        <div class="section-title">fsm-transition — The Core Engine Rule</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line highlighted">
+            <div class="line-num">5</div>
+            <div class="line-content"><span class="op">(</span><span class="kw">defrule</span> <span class="rl">fsm-transition</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">6</div>
+            <div class="line-content">   <span class="vr">?current</span> <span class="op">&lt;-</span> <span class="op">(</span>state <span class="op">(</span>name <span class="vr">?s</span><span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">7</div>
+            <div class="line-content">   <span class="vr">?inp</span> <span class="op">&lt;-</span> <span class="op">(</span>input <span class="vr">?value</span><span class="op">)</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">8</div>
+            <div class="line-content">   <span class="op">(</span>arc <span class="op">(</span>from <span class="vr">?s</span><span class="op">)</span> <span class="op">(</span>to <span class="vr">?next</span><span class="op">)</span> <span class="op">(</span>input <span class="vr">?value</span><span class="op">))</span></div>
+          </div>
+          <div class="code-line">
+            <div class="line-num">9</div>
+            <div class="line-content">   <span class="op">=&gt;</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">10</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">retract</span> <span class="vr">?current</span><span class="op">)</span>          <span class="cm">; remove old state</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">11</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">retract</span> <span class="vr">?inp</span><span class="op">)</span>              <span class="cm">; consume the input</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">12</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">assert</span> <span class="op">(</span>state <span class="op">(</span>name <span class="vr">?next</span><span class="op">)))</span></div>
+          </div>
+          <div class="code-line">
+            <div class="line-num">13</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">printout</span> t <span class="st">"Transition: "</span> <span class="vr">?s</span> <span class="st">" --["</span> <span class="vr">?value</span> <span class="st">"]--&gt; "</span> <span class="vr">?next</span> crlf<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">Line-by-line breakdown</div>
+          <div class="explain-text">
+            <strong>Line 6 — Match current state:</strong> <code>?current &lt;-</code> binds the actual fact object to <code>?current</code> so we can retract it later. <code>?s</code> captures its name (e.g. <code>start</code>).<br><br>
+            <strong>Line 7 — Match input fact:</strong> Looks for an <code>(input ?value)</code> fact in memory. <code>?value</code> will be <code>N</code> or <code>Q</code>.<br><br>
+            <strong>Line 8 — Find matching arc:</strong> Looks for an arc fact whose <code>from</code> equals <code>?s</code> AND whose <code>input</code> equals <code>?value</code>. If found, <code>?next</code> is bound to the destination state. This is pattern matching — CLIPS only fires the rule when ALL three conditions are true simultaneously.<br><br>
+            <strong>Line 10 — Remove old state:</strong> Retracts the current state fact — the machine can only be in one state at a time.<br><br>
+            <strong>Line 11 — Consume input:</strong> Retracts the input fact so the rule doesn't re-fire on the same input infinitely.<br><br>
+            <strong>Line 12 — Move to next state:</strong> Asserts a new state fact with the destination name.<br><br>
+            <strong>Line 13 — Print transition:</strong> Logs the transition for tracing, e.g. <code>Transition: start --[N]--> s5</code>.
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-node start">state: start</div>
+          <div class="flow-arrow">+</div>
+          <div class="flow-node">(input N)</div>
+          <div class="flow-arrow">+</div>
+          <div class="flow-node">(arc start→s5 N)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node end">state: s5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 3: Error Rule -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">3</div>
+        <div class="section-title">fsm-no-transition — Error Handling</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line highlighted">
+            <div class="line-num">16</div>
+            <div class="line-content"><span class="op">(</span><span class="kw">defrule</span> <span class="rl">fsm-no-transition</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">17</div>
+            <div class="line-content">   <span class="op">(</span>state <span class="op">(</span>name <span class="vr">?s</span><span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">18</div>
+            <div class="line-content">   <span class="op">(</span>input <span class="vr">?value</span><span class="op">)</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">19</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">not</span> <span class="op">(</span>arc <span class="op">(</span>from <span class="vr">?s</span><span class="op">)</span> <span class="op">(</span>to <span class="vr">?</span><span class="op">)</span> <span class="op">(</span>input <span class="vr">?value</span><span class="op">)))</span></div>
+          </div>
+          <div class="code-line">
+            <div class="line-num">20</div>
+            <div class="line-content">   <span class="op">=&gt;</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">21</div>
+            <div class="line-content">   <span class="op">(</span><span class="kw">printout</span> t <span class="st">"ERROR: No transition from "</span> <span class="vr">?s</span> <span class="st">" on input '"</span> <span class="vr">?value</span> <span class="st">"'"</span> crlf<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">What this does</div>
+          <div class="explain-text">
+            This rule is the <strong>mirror image</strong> of the transition rule — it fires when there is a state and an input, but <strong>no matching arc exists</strong>.<br><br>
+            The key is <code>(not (arc ...))</code> — CLIPS's logical negation. The <code>?</code> wildcard in <code>(to ?)</code> means "any value" — we only care that no arc from <code>?s</code> on input <code>?value</code> exists at all.<br><br>
+            Since the vending machine only accepts <strong>N</strong> (nickel) and <strong>Q</strong> (quarter), asserting <code>(input D)</code> (a dime) would trigger this rule.
+          </div>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-text">
+            <strong>Note:</strong> Both rules cannot fire at the same time. If a valid arc exists, <code>fsm-transition</code> fires. If no arc exists, <code>fsm-no-transition</code> fires. They are mutually exclusive by design.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 4: Arc Facts -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">4</div>
+        <div class="section-title">deffacts — Vending Machine Arc Table</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="explain-card" style="border-top:none;">
+          <div class="explain-label">How it works</div>
+          <div class="explain-text">
+            <code>deffacts</code> preloads facts into working memory on <code>(reset)</code>. Each <code>arc</code> fact is one row of the FSM's transition table. The rules above read these facts at runtime — <strong>the rules never change, only the arc facts do</strong>.
+          </div>
+        </div>
+        <div class="arc-table-wrap">
+          <table>
+            <thead>
+              <tr><th>From State</th><th>Input</th><th></th><th>To State</th><th>Credit Change</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>start</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>s5</td><td>0¢ + 5¢</td></tr>
+              <tr><td>start</td><td><span class="input-badge">Q</span></td><td class="arrow">→</td><td>s10</td><td>0¢ + 10¢</td></tr>
+              <tr><td>s5</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>s10</td><td>5¢ + 5¢</td></tr>
+              <tr><td>s5</td><td><span class="input-badge">Q</span></td><td class="arrow">→</td><td>s15</td><td>5¢ + 10¢</td></tr>
+              <tr><td>s10</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>s15</td><td>10¢ + 5¢</td></tr>
+              <tr><td>s10</td><td><span class="input-badge">Q</span></td><td class="arrow">→</td><td>s20</td><td>10¢ + 10¢</td></tr>
+              <tr><td>s15</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>s20</td><td>15¢ + 5¢</td></tr>
+              <tr><td>s15</td><td><span class="input-badge">Q</span></td><td class="arrow">→</td><td>success</td><td>15¢ + 10¢ = 25¢ ✓</td></tr>
+              <tr><td>s20</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>success</td><td>20¢ + 5¢ = 25¢ ✓</td></tr>
+              <tr><td>s20</td><td><span class="input-badge">Q</span></td><td class="arrow">→</td><td>success</td><td>20¢ + 10¢ ≥ 25¢ ✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">💡</div>
+          <div class="callout-text">
+            A quarter is modelled as <strong>+10¢</strong> (not 25¢) because the machine only needs 5¢ increments to reach exactly 25¢. Each state name directly encodes the accumulated credit: <code>s5</code> = 5¢, <code>s10</code> = 10¢, etc.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-vm -->
+
+  <!-- ═══════════════════════ STRING VALIDATOR ═══════════════════════ -->
+  <div class="panel" id="panel-sv">
+
+    <!-- PART 1: Shared engine -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">1</div>
+        <div class="section-title">Templates &amp; Rules — Reused from Vending Machine</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="explain-card" style="border-top:none;">
+          <div class="explain-label">Key insight</div>
+          <div class="explain-text">
+            The <code>deftemplate</code> definitions and both rules (<code>fsm-transition</code>, <code>fsm-no-transition</code>) are <strong>identical</strong> to the vending machine file. This is the power of the generic FSM design:<br><br>
+            The <strong>rules describe behaviour</strong> (how to move between states).<br>
+            The <strong>arc facts describe the machine</strong> (which transitions are valid).<br><br>
+            Swapping the arc facts turns the same engine into a completely different machine.
+          </div>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">🔁</div>
+          <div class="callout-text">
+            In a real application you could put both machines' arcs in <strong>one file</strong> with a <code>(machine ?m)</code> slot on each arc, and filter by machine name — one engine, infinite FSMs.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 2: BEGIN path -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">2</div>
+        <div class="section-title">BEGIN path — B → E → G → I → N</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line highlighted">
+            <div class="line-num">3</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from start<span class="op">)</span> <span class="op">(</span>to sB<span class="op">)</span>      <span class="op">(</span>input B<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">4</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sB<span class="op">)</span>    <span class="op">(</span>to sBE<span class="op">)</span>     <span class="op">(</span>input E<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">5</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sBE<span class="op">)</span>   <span class="op">(</span>to sBEG<span class="op">)</span>    <span class="op">(</span>input G<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">6</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sBEG<span class="op">)</span>  <span class="op">(</span>to sBEGI<span class="op">)</span>   <span class="op">(</span>input I<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">7</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sBEGI<span class="op">)</span> <span class="op">(</span>to success<span class="op">)</span> <span class="op">(</span>input N<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">State naming convention</div>
+          <div class="explain-text">
+            Each state name is a <strong>prefix log</strong> of characters seen so far. <code>sBEG</code> means the machine has accepted <strong>B, E, G</strong> in order and is waiting for <strong>I</strong>.<br><br>
+            This makes the arc table self-documenting — you can read the path just from the state names without needing to draw the diagram.
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-node start">start</div>
+          <div class="flow-arrow">─B→</div>
+          <div class="flow-node">sB</div>
+          <div class="flow-arrow">─E→</div>
+          <div class="flow-node">sBE</div>
+          <div class="flow-arrow">─G→</div>
+          <div class="flow-node">sBEG</div>
+          <div class="flow-arrow">─I→</div>
+          <div class="flow-node">sBEGI</div>
+          <div class="flow-arrow">─N→</div>
+          <div class="flow-node end">success</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 3: WHILE path -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">3</div>
+        <div class="section-title">WHILE path — W → H → I → L → E</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line highlighted">
+            <div class="line-num">10</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from start<span class="op">)</span> <span class="op">(</span>to sW<span class="op">)</span>      <span class="op">(</span>input W<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">11</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sW<span class="op">)</span>    <span class="op">(</span>to sWH<span class="op">)</span>     <span class="op">(</span>input H<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">12</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWH<span class="op">)</span>   <span class="op">(</span>to sWHI<span class="op">)</span>    <span class="op">(</span>input I<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">13</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWHI<span class="op">)</span>  <span class="op">(</span>to sWHIL<span class="op">)</span>   <span class="op">(</span>input L<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">14</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWHIL<span class="op">)</span> <span class="op">(</span>to success<span class="op">)</span> <span class="op">(</span>input E<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">Shared entry point with WRITE</div>
+          <div class="explain-text">
+            Both WHILE and WRITE start with <strong>W</strong>, so they both transition from <code>start</code> into the shared state <code>sW</code>. The machine doesn't yet know which word is coming — it just knows a <strong>W</strong> was seen.<br><br>
+            The paths diverge at the <strong>second character</strong>: H leads toward WHILE, R leads toward WRITE. From <code>sW</code>, asserting <code>(input H)</code> goes to <code>sWH</code> and asserting <code>(input R)</code> goes to <code>sWR</code>.
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-node start">start</div>
+          <div class="flow-arrow">─W→</div>
+          <div class="flow-node" style="border-color:var(--accent3);color:var(--accent3)">sW</div>
+          <div class="flow-arrow">─H→</div>
+          <div class="flow-node">sWH</div>
+          <div class="flow-arrow">─I→</div>
+          <div class="flow-node">sWHI</div>
+          <div class="flow-arrow">─L→</div>
+          <div class="flow-node">sWHIL</div>
+          <div class="flow-arrow">─E→</div>
+          <div class="flow-node end">success</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 4: WRITE path -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">4</div>
+        <div class="section-title">WRITE path — W → R → I → T → E</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="annotated-code">
+          <div class="code-line">
+            <div class="line-num">10</div>
+            <div class="line-content"><span class="cm">;; sW is shared with WHILE (W already handled above)</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">17</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sW<span class="op">)</span>    <span class="op">(</span>to sWR<span class="op">)</span>     <span class="op">(</span>input R<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">18</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWR<span class="op">)</span>   <span class="op">(</span>to sWRI<span class="op">)</span>    <span class="op">(</span>input I<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">19</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWRI<span class="op">)</span>  <span class="op">(</span>to sWRIT<span class="op">)</span>   <span class="op">(</span>input T<span class="op">))</span></div>
+          </div>
+          <div class="code-line highlighted">
+            <div class="line-num">20</div>
+            <div class="line-content"><span class="op">(</span>arc <span class="op">(</span>from sWRIT<span class="op">)</span> <span class="op">(</span>to success<span class="op">)</span> <span class="op">(</span>input E<span class="op">))</span></div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="explain-label">Divergence from sW</div>
+          <div class="explain-text">
+            From the shared state <code>sW</code>, an <strong>R</strong> input leads down the WRITE branch. From this point the states are fully independent from the WHILE path.<br><br>
+            Notice that <strong>I</strong> appears in both WHILE (<code>sWH → sWHI</code>) and WRITE (<code>sWR → sWRI</code>) — but they are different states so there's no ambiguity. The machine tracks the full history of characters in the state name.
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-node start">start</div>
+          <div class="flow-arrow">─W→</div>
+          <div class="flow-node" style="border-color:var(--accent3);color:var(--accent3)">sW</div>
+          <div class="flow-arrow">─R→</div>
+          <div class="flow-node">sWR</div>
+          <div class="flow-arrow">─I→</div>
+          <div class="flow-node">sWRI</div>
+          <div class="flow-arrow">─T→</div>
+          <div class="flow-node">sWRIT</div>
+          <div class="flow-arrow">─E→</div>
+          <div class="flow-node end">success</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 5: Full arc table -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-num">5</div>
+        <div class="section-title">Complete Arc Table — All Three Keywords</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="arc-table-wrap">
+          <table>
+            <thead>
+              <tr><th>From</th><th>Input</th><th></th><th>To</th><th>Path</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>start</td><td><span class="input-badge">B</span></td><td class="arrow">→</td><td>sB</td><td>BEGIN</td></tr>
+              <tr><td>sB</td><td><span class="input-badge">E</span></td><td class="arrow">→</td><td>sBE</td><td>BEGIN</td></tr>
+              <tr><td>sBE</td><td><span class="input-badge">G</span></td><td class="arrow">→</td><td>sBEG</td><td>BEGIN</td></tr>
+              <tr><td>sBEG</td><td><span class="input-badge">I</span></td><td class="arrow">→</td><td>sBEGI</td><td>BEGIN</td></tr>
+              <tr><td>sBEGI</td><td><span class="input-badge">N</span></td><td class="arrow">→</td><td>success ✓</td><td>BEGIN</td></tr>
+              <tr><td>start</td><td><span class="input-badge">W</span></td><td class="arrow">→</td><td>sW</td><td>WHILE / WRITE shared</td></tr>
+              <tr><td>sW</td><td><span class="input-badge">H</span></td><td class="arrow">→</td><td>sWH</td><td>WHILE</td></tr>
+              <tr><td>sWH</td><td><span class="input-badge">I</span></td><td class="arrow">→</td><td>sWHI</td><td>WHILE</td></tr>
+              <tr><td>sWHI</td><td><span class="input-badge">L</span></td><td class="arrow">→</td><td>sWHIL</td><td>WHILE</td></tr>
+              <tr><td>sWHIL</td><td><span class="input-badge">E</span></td><td class="arrow">→</td><td>success ✓</td><td>WHILE</td></tr>
+              <tr><td>sW</td><td><span class="input-badge">R</span></td><td class="arrow">→</td><td>sWR</td><td>WRITE</td></tr>
+              <tr><td>sWR</td><td><span class="input-badge">I</span></td><td class="arrow">→</td><td>sWRI</td><td>WRITE</td></tr>
+              <tr><td>sWRI</td><td><span class="input-badge">T</span></td><td class="arrow">→</td><td>sWRIT</td><td>WRITE</td></tr>
+              <tr><td>sWRIT</td><td><span class="input-badge">E</span></td><td class="arrow">→</td><td>success ✓</td><td>WRITE</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <div class="callout-icon">🔍</div>
+          <div class="callout-text">
+            Any input not listed in this table (e.g. asserting <code>(input X)</code> from <code>start</code>) will trigger <code>fsm-no-transition</code> and print an error — the machine rejects invalid strings automatically.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-sv -->
+
+</div>
+
+<script>
+  function switchTab(id) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['vm','sv'][i] === id);
+    });
+    document.querySelectorAll('.panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + id);
+    });
+  }
+
+  function toggleSection(header) {
+    header.parentElement.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
