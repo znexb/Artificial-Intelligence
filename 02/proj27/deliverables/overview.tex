@@ -1,0 +1,501 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{mdframed}
+\usepackage{caption}
+\usepackage{textcomp}   % \textcent
+\usepackage{amssymb}    % \checkmark
+\usepackage{float}      % H specifier for figures
+
+\geometry{margin=2.5cm}
+\setlength{\headheight}{15pt}
+
+% ── Colour palette ──────────────────────────────────────────────────────────
+\definecolor{clipsbg}{RGB}{28,28,35}
+\definecolor{clipsfg}{RGB}{220,220,220}
+\definecolor{clipscomment}{RGB}{106,153,85}
+\definecolor{clipsstring}{RGB}{206,145,120}
+\definecolor{clipskw}{RGB}{86,156,214}
+\definecolor{successgreen}{RGB}{39,174,96}
+\definecolor{sectionblue}{RGB}{41,128,185}
+\definecolor{lightgray}{RGB}{245,245,245}
+\definecolor{bordergray}{RGB}{200,200,200}
+
+% ── CLIPS listing style ─────────────────────────────────────────────────────
+\lstdefinelanguage{CLIPS}{
+  morekeywords={defrule,deffacts,deftemplate,slot,assert,retract,
+                not,and,or,printout,crlf,run,reset,load,clear,facts,rules},
+  sensitive=true,
+  morecomment=[l]{;},
+  morestring=[b]",
+}
+
+\lstdefinestyle{clipsStyle}{
+  language=CLIPS,
+  backgroundcolor=\color{clipsbg},
+  basicstyle=\ttfamily\small\color{clipsfg},
+  keywordstyle=\color{clipskw}\bfseries,
+  commentstyle=\color{clipscomment}\itshape,
+  stringstyle=\color{clipsstring},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  breaklines=true,
+  frame=none,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=3,
+  xleftmargin=1.5em,
+}
+
+\lstdefinestyle{terminalStyle}{
+  backgroundcolor=\color{clipsbg},
+  basicstyle=\ttfamily\small\color{clipsfg},
+  numbers=none,
+  breaklines=true,
+  frame=none,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=1em,
+}
+
+% ── Section formatting ──────────────────────────────────────────────────────
+\titleformat{\section}{\Large\bfseries\color{sectionblue}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{}{0em}{}
+
+% ── Header / Footer ─────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\textcolor{gray}{\small Exercise 8.9 --- Finite State Machines in CLIPS}}
+\lhead{\textcolor{gray}{\small AI Assignment}}
+\cfoot{\textcolor{gray}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Result box ──────────────────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=successgreen!10,
+  linecolor=successgreen,
+  linewidth=1.5pt,
+  leftmargin=0pt,
+  rightmargin=0pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt,
+]{successbox}
+
+% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{3cm}
+  {\Huge\bfseries\color{sectionblue} Exercise 8.9}\\[0.5em]
+  {\Large Finite State Machines in CLIPS}\\[2em]
+  \rule{0.6\linewidth}{1pt}\\[2em]
+  {\large Artificial Intelligence --- Methods of Inference}\\[0.5em]
+  {\large Chapter 3 / Exercise 8}\\[3em]
+  \vfill
+  {\normalsize CLIPS Version 6.30}
+\end{titlepage}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Exercise Description}
+
+\begin{mdframed}[backgroundcolor=lightgray, linecolor=bordergray, linewidth=1pt,
+    innerleftmargin=12pt, innerrightmargin=12pt,
+    innertopmargin=10pt, innerbottommargin=10pt]
+\textbf{8.9} \quad Write rules that will take a finite state machine from its present
+state to its next state given a fact of the form
+
+\vspace{0.5em}
+\texttt{(input \textless value\textgreater)}
+
+\vspace{0.5em}
+The state machine and its arcs should be represented as facts. The input fact
+should be retracted when the machine goes to its next state. Test your rules
+and fact representations on the finite state machines shown in Figures~3.5
+and~3.6.
+\end{mdframed}
+
+\subsection*{Approach}
+
+The solution uses a \textbf{generic FSM engine} implemented as two CLIPS rules:
+
+\begin{itemize}
+  \item \texttt{fsm-transition} --- fires when a matching arc exists for the current
+        state and input; retracts both the current state and the input fact, then
+        asserts the new state.
+  \item \texttt{fsm-no-transition} --- fires when no arc matches; prints an error
+        message.
+\end{itemize}
+
+Each FSM is described entirely by its \texttt{arc} and initial \texttt{state} facts,
+making the rules reusable across any FSM without modification.
+
+% ════════════════════════════════════════════════════════════════════════════
+\newpage
+\section{FSM 1 --- Soft Drink Vending Machine (Figure 3.5)}
+
+\subsection*{State Diagram}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.72\textwidth]{fig3_5.jpg}
+  \caption{Figure 3.5 --- State Diagram for a Soft Drink Vending Machine
+           accepting Quarters (Q) and Nickels (N)}
+\end{figure}
+
+The machine accepts coins until 25 cents have been deposited.
+States represent accumulated credit: \texttt{start} (0\textcent),
+\texttt{s5} (5\textcent), \texttt{s10} (10\textcent),
+\texttt{s15} (15\textcent), \texttt{s20} (20\textcent), and \texttt{success} (25\textcent).
+
+% ── Code ────────────────────────────────────────────────────────────────────
+\subsection*{CLIPS Code --- \texttt{vending\_machine.clp}}
+
+\subsubsection*{Templates and Rules (shared engine)}
+
+\begin{lstlisting}[style=clipsStyle]
+;;; Templates
+(deftemplate state (slot name))
+(deftemplate arc (slot from) (slot to) (slot input))
+
+;;; Transition rule --- fires when a valid arc exists
+(defrule fsm-transition
+   ?current <- (state (name ?s))
+   ?inp     <- (input ?value)
+   (arc (from ?s) (to ?next) (input ?value))
+   =>
+   (retract ?current)          ; remove old state
+   (retract ?inp)              ; consume the input fact
+   (assert (state (name ?next)))
+   (printout t "Transition: " ?s " --[" ?value "]--> " ?next crlf))
+
+;;; Error rule --- fires when no arc matches
+(defrule fsm-no-transition
+   (state (name ?s))
+   (input ?value)
+   (not (arc (from ?s) (to ?) (input ?value)))
+   =>
+   (printout t "ERROR: No transition from " ?s
+               " on input '" ?value "'" crlf))
+\end{lstlisting}
+
+\subsubsection*{Arc Facts}
+
+\begin{lstlisting}[style=clipsStyle]
+(deffacts vending-machine-arcs
+   (arc (from start)   (to s5)      (input N))
+   (arc (from start)   (to s10)     (input Q))
+   (arc (from s5)      (to s10)     (input N))
+   (arc (from s5)      (to s15)     (input Q))
+   (arc (from s10)     (to s15)     (input N))
+   (arc (from s10)     (to s20)     (input Q))
+   (arc (from s15)     (to s20)     (input N))
+   (arc (from s15)     (to success) (input Q))
+   (arc (from s20)     (to success) (input N))
+   (arc (from s20)     (to success) (input Q)))
+
+(deffacts initial-state
+   (state (name start)))
+\end{lstlisting}
+
+\subsubsection*{Key Design Decisions}
+
+\begin{itemize}
+  \item The input fact \texttt{(input ?value)} is \textbf{retracted} inside
+        \texttt{fsm-transition}, preventing the rule from re-firing on the
+        same input.
+  \item Only \textbf{one} state fact exists at any time; the old one is
+        retracted before the new one is asserted.
+  \item The rules are \textbf{FSM-agnostic} --- only the arc facts change
+        between machines.
+\end{itemize}
+
+% ── Tests ───────────────────────────────────────────────────────────────────
+\subsection*{Tests}
+
+\subsubsection*{Test 1 --- Five Nickels (N N N N N)}
+
+\textit{Input sequence:} 5 $\times$ N \ $\Rightarrow$ \ 5 $\times$ 5\textcent\ $=$ 25\textcent
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (load "vending_machine.clp")
+...
+TRUE
+CLIPS> (reset)
+CLIPS> (assert (input N))
+<Fact-12>
+CLIPS> (run)
+Transition: start --[N]--> s5
+CLIPS> (assert (input N))
+<Fact-14>
+CLIPS> (run)
+Transition: s5 --[N]--> s10
+CLIPS> (assert (input N))
+<Fact-16>
+CLIPS> (run)
+Transition: s10 --[N]--> s15
+CLIPS> (assert (input N))
+<Fact-18>
+CLIPS> (run)
+Transition: s15 --[N]--> s20
+CLIPS> (assert (input N))
+<Fact-20>
+CLIPS> (run)
+Transition: s20 --[N]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} Machine reached \texttt{success} after 5 nickels (25\textcent). \checkmark
+\end{successbox}
+
+\subsubsection*{Test 2 --- Three Quarters (Q Q Q)}
+
+\textit{Input sequence:} Q Q Q \ $\Rightarrow$ \ 10\textcent\ + 10\textcent\ + final Q $=$ success
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (reset)
+CLIPS> (assert (input Q))
+<Fact-12>
+CLIPS> (run)
+Transition: start --[Q]--> s10
+CLIPS> (assert (input Q))
+<Fact-14>
+CLIPS> (run)
+Transition: s10 --[Q]--> s20
+CLIPS> (assert (input Q))
+<Fact-16>
+CLIPS> (run)
+Transition: s20 --[Q]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} Machine reached \texttt{success} after 3 quarters. \checkmark
+\end{successbox}
+
+\subsubsection*{Test 3 --- Mixed Coins (N Q N Q)}
+
+\textit{Input sequence:} N Q N Q \ $\Rightarrow$ \ 5 + 10 + 5 + 5\textcent\ $=$ 25\textcent
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (reset)
+CLIPS> (assert (input N))
+<Fact-12>
+CLIPS> (run)
+Transition: start --[N]--> s5
+CLIPS> (assert (input Q))
+<Fact-14>
+CLIPS> (run)
+Transition: s5 --[Q]--> s15
+CLIPS> (assert (input N))
+<Fact-16>
+CLIPS> (run)
+Transition: s15 --[N]--> s20
+CLIPS> (assert (input Q))
+<Fact-18>
+CLIPS> (run)
+Transition: s20 --[Q]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} Machine reached \texttt{success} with mixed coin input. \checkmark
+\end{successbox}
+
+% ════════════════════════════════════════════════════════════════════════════
+\newpage
+\section{FSM 2 --- String Validator: WHILE, WRITE, BEGIN (Figure 3.6)}
+
+\subsection*{State Diagram}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.62\textwidth]{fig3_6.jpg}
+  \caption{Figure 3.6 --- Part of a Finite State Machine for determining valid
+           strings WHILE, WRITE, and BEGIN}
+\end{figure}
+
+The machine validates whether a sequence of character inputs spells one of the
+three reserved keywords: \texttt{WHILE}, \texttt{WRITE}, or \texttt{BEGIN}.
+Each state corresponds to a prefix of a valid keyword. Reaching \texttt{success}
+means the full keyword was accepted.
+
+% ── Code ────────────────────────────────────────────────────────────────────
+\subsection*{CLIPS Code --- \texttt{string\_validator.clp}}
+
+\subsubsection*{Templates and Rules}
+
+The same generic engine rules (\texttt{fsm-transition} and
+\texttt{fsm-no-transition}) are used --- only the arc facts differ.
+
+\subsubsection*{Arc Facts}
+
+\begin{lstlisting}[style=clipsStyle]
+(deffacts string-validator-arcs
+   ;; BEGIN path: B -> sB -> sBE -> sBEG -> sBEGI -> success
+   (arc (from start) (to sB)      (input B))
+   (arc (from sB)    (to sBE)     (input E))
+   (arc (from sBE)   (to sBEG)    (input G))
+   (arc (from sBEG)  (to sBEGI)   (input I))
+   (arc (from sBEGI) (to success) (input N))
+
+   ;; WHILE path: W -> sW -> sWH -> sWHI -> sWHIL -> success
+   (arc (from start) (to sW)      (input W))
+   (arc (from sW)    (to sWH)     (input H))
+   (arc (from sWH)   (to sWHI)    (input I))
+   (arc (from sWHI)  (to sWHIL)   (input L))
+   (arc (from sWHIL) (to success) (input E))
+
+   ;; WRITE path: W -> sW -> sWR -> sWRI -> sWRIT -> success
+   (arc (from sW)    (to sWR)     (input R))
+   (arc (from sWR)   (to sWRI)    (input I))
+   (arc (from sWRI)  (to sWRIT)   (input T))
+   (arc (from sWRIT) (to success) (input E)))
+
+(deffacts initial-state
+   (state (name start)))
+\end{lstlisting}
+
+\subsubsection*{Key Design Decisions}
+
+\begin{itemize}
+  \item \texttt{WHILE} and \texttt{WRITE} share the state \texttt{sW} after
+        the first character; they diverge at the second character
+        (\texttt{H} vs \texttt{R}).
+  \item State names directly encode the prefix accepted so far
+        (e.g.\ \texttt{sBEG} means ``B-E-G has been seen''), making the
+        arc table easy to read and verify against the diagram.
+  \item Any unexpected character leaves no matching arc, so
+        \texttt{fsm-no-transition} fires and reports an error.
+\end{itemize}
+
+% ── Tests ───────────────────────────────────────────────────────────────────
+\subsection*{Tests}
+
+\subsubsection*{Test 1 --- Keyword ``BEGIN''}
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (reset)
+CLIPS> (assert (input B))
+<Fact-16>
+CLIPS> (run)
+Transition: start --[B]--> sB
+CLIPS> (assert (input E))
+<Fact-18>
+CLIPS> (run)
+Transition: sB --[E]--> sBE
+CLIPS> (assert (input G))
+<Fact-20>
+CLIPS> (run)
+Transition: sBE --[G]--> sBEG
+CLIPS> (assert (input I))
+<Fact-22>
+CLIPS> (run)
+Transition: sBEG --[I]--> sBEGI
+CLIPS> (assert (input N))
+<Fact-24>
+CLIPS> (run)
+Transition: sBEGI --[N]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} ``BEGIN'' accepted --- machine reached \texttt{success}. \checkmark
+\end{successbox}
+
+\subsubsection*{Test 2 --- Keyword ``WHILE''}
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (reset)
+CLIPS> (assert (input W))
+<Fact-16>
+CLIPS> (run)
+Transition: start --[W]--> sW
+CLIPS> (assert (input H))
+<Fact-18>
+CLIPS> (run)
+Transition: sW --[H]--> sWH
+CLIPS> (assert (input I))
+<Fact-20>
+CLIPS> (run)
+Transition: sWH --[I]--> sWHI
+CLIPS> (assert (input L))
+<Fact-22>
+CLIPS> (run)
+Transition: sWHI --[L]--> sWHIL
+CLIPS> (assert (input E))
+<Fact-24>
+CLIPS> (run)
+Transition: sWHIL --[E]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} ``WHILE'' accepted --- machine reached \texttt{success}. \checkmark
+\end{successbox}
+
+\subsubsection*{Test 3 --- Keyword ``WRITE''}
+
+\begin{lstlisting}[style=terminalStyle]
+CLIPS> (reset)
+CLIPS> (assert (input W))
+<Fact-16>
+CLIPS> (run)
+Transition: start --[W]--> sW
+CLIPS> (assert (input R))
+<Fact-18>
+CLIPS> (run)
+Transition: sW --[R]--> sWR
+CLIPS> (assert (input I))
+<Fact-20>
+CLIPS> (run)
+Transition: sWR --[I]--> sWRI
+CLIPS> (assert (input T))
+<Fact-22>
+CLIPS> (run)
+Transition: sWRI --[T]--> sWRIT
+CLIPS> (assert (input E))
+<Fact-24>
+CLIPS> (run)
+Transition: sWRIT --[E]--> success
+\end{lstlisting}
+
+\begin{successbox}
+\textbf{Result:} ``WRITE'' accepted --- machine reached \texttt{success}. \checkmark
+\end{successbox}
+
+% ════════════════════════════════════════════════════════════════════════════
+\newpage
+\section*{Summary}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{FSM} & \textbf{Test} & \textbf{Input Sequence} & \textbf{Result} \\
+\midrule
+Vending Machine & 1 & N N N N N       & \textcolor{successgreen}{\textbf{success}} \\
+Vending Machine & 2 & Q Q Q           & \textcolor{successgreen}{\textbf{success}} \\
+Vending Machine & 3 & N Q N Q         & \textcolor{successgreen}{\textbf{success}} \\
+\midrule
+String Validator & 1 & B E G I N      & \textcolor{successgreen}{\textbf{success}} \\
+String Validator & 2 & W H I L E      & \textcolor{successgreen}{\textbf{success}} \\
+String Validator & 3 & W R I T E      & \textcolor{successgreen}{\textbf{success}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{1em}
+All six tests reached the \texttt{success} state, confirming that the generic
+FSM engine correctly drives both machines using only their arc facts and an
+initial state fact.
+
+\end{document}

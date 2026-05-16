@@ -1,0 +1,22 @@
+CLIPS> (reset)
+CLIPS> (assert (input W))
+<Fact-16>
+CLIPS> (run)
+Transition: start --[W]--> sW
+CLIPS> (assert (input R))
+<Fact-18>
+CLIPS> (run)
+Transition: sW --[R]--> sWR
+CLIPS> (assert (input I))
+<Fact-20>
+CLIPS> (run)
+Transition: sWR --[I]--> sWRI
+CLIPS> (assert (input T))
+<Fact-22>
+CLIPS> (run)
+Transition: sWRI --[T]--> sWRIT
+CLIPS> (assert (input E))
+<Fact-24>
+CLIPS> (run)
+Transition: sWRIT --[E]--> success
+CLIPS> 

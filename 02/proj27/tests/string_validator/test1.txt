@@ -1,0 +1,22 @@
+CLIPS> (reset)
+CLIPS> (assert (input B))
+<Fact-16>
+CLIPS> (run)
+Transition: start --[B]--> sB
+CLIPS> (assert (input E))
+<Fact-18>
+CLIPS> (run)
+Transition: sB --[E]--> sBE
+CLIPS> (assert (input G))
+<Fact-20>
+CLIPS> (run)
+Transition: sBE --[G]--> sBEG
+CLIPS> (assert (input I))
+<Fact-22>
+CLIPS> (run)
+Transition: sBEG --[I]--> sBEGI
+CLIPS> (assert (input N))
+<Fact-24>
+CLIPS> (run)
+Transition: sBEGI --[N]--> success
+CLIPS> 

@@ -1,0 +1,31 @@
+         CLIPS (6.30 3/17/15)
+CLIPS> (load "D:/Projekte/UVeTeu/Year 2/ai/assignments/02/proj27/code/vending_machine.clp")
+Defining deftemplate: state
+Defining deftemplate: arc
+Defining defrule: fsm-transition +j+j+j+j
+Defining defrule: fsm-no-transition =j=j+j+j
+Defining deffacts: vending-machine-arcs
+Defining deffacts: initial-state
+TRUE
+CLIPS> (reset)
+CLIPS> (assert (input N))
+<Fact-12>
+CLIPS> (run)
+Transition: start --[N]--> s5
+CLIPS> (assert (input N))
+<Fact-14>
+CLIPS> (run)
+Transition: s5 --[N]--> s10
+CLIPS> (assert (input N))
+<Fact-16>
+CLIPS> (run)
+Transition: s10 --[N]--> s15
+CLIPS> (assert (input N))
+<Fact-18>
+CLIPS> (run)
+Transition: s15 --[N]--> s20
+CLIPS> (assert (input N))
+<Fact-20>
+CLIPS> (run)
+Transition: s20 --[N]--> success
+CLIPS> 

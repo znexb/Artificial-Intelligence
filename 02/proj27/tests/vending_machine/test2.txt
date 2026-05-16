@@ -1,0 +1,14 @@
+CLIPS> (reset)
+CLIPS> (assert (input Q))
+<Fact-12>
+CLIPS> (run)
+Transition: start --[Q]--> s10
+CLIPS> (assert (input Q))
+<Fact-14>
+CLIPS> (run)
+Transition: s10 --[Q]--> s20
+CLIPS> (assert (input Q))
+<Fact-16>
+CLIPS> (run)
+Transition: s20 --[Q]--> success
+CLIPS> 
