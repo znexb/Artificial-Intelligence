@@ -18,6 +18,8 @@ public class CityMapper {
 
     public static byte convert(String s) { return table.getOrDefault(s, Integer.valueOf(-1).byteValue()); }
 
+    public static String[] getNames() { return cities; }
+
     public static void printMap() { 
         for(Map.Entry<String, Byte> entry : table.entrySet()) {
             OutputDevice.println(entry.getKey() + ": " + entry.getValue());

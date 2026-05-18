@@ -68,7 +68,7 @@ public class RomaniaCities {
 
     private void runUCS() {
         OutputDevice.print("UCS cost ::: ");
-        OutputDevice.print(UniformCostSearch.computeCostFromAtoB(romania, startCityId, finalCityId));
+        OutputDevice.print(UniformCostSearch.computeCostFromAtoB(romania, startCityId, finalCityId, CityMapper.getNames()));
         OutputDevice.endl();
     }
 }
