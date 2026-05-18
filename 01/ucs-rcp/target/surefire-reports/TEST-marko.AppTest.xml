@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="D:\Programme\JDK\bin"/>
-    <property name="sun.java.command" value="C:\Users\Marko\AppData\Local\Temp\surefire17340642741908649061\surefirebooter-20260420111839361_3.jar C:\Users\Marko\AppData\Local\Temp\surefire17340642741908649061 2026-04-20T11-18-39_069-jvmRun1 surefire-20260420111839361_1tmp surefire_0-20260420111839361_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\Marko\AppData\Local\Temp\surefire16868007638318851242\surefirebooter-20260518202930816_3.jar C:\Users\Marko\AppData\Local\Temp\surefire16868007638318851242 2026-05-18T20-29-29_697-jvmRun1 surefire-20260518202930816_1tmp surefire_0-20260518202930816_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\target\test-classes;D:\Projekte\UVeTeu\Year 2\ai\assignments\01\ucs-rcp\target\classes;C:\Users\Marko\.m2\repository\junit\junit\3.8.1\junit-3.8.1.jar;C:\Users\Marko\.m2\repository\com\google\code\gson\gson\2.13.2\gson-2.13.2.jar;C:\Users\Marko\.m2\repository\com\google\errorprone\error_prone_annotations\2.41.0\error_prone_annotations-2.41.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\Marko\AppData\Local\Temp\surefire17340642741908649061\surefirebooter-20260420111839361_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\Marko\AppData\Local\Temp\surefire16868007638318851242\surefirebooter-20260518202930816_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="23.0.1+11-39"/>
@@ -50,7 +50,7 @@
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="native.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="D:\Programme\JDK\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;D:\Programme\Windsurf;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\QuickTime\QTSystem\;D:\Programe\Nmap;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Git\cmd;C:\Users\Marko\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\ProgramData\chocolatey\bin;C:\Program Files\GitHub CLI\;D:\Programme\JDK\bin;C:\Users\Marko\AppData\Roaming\Python\Python310\Scripts;C:\Users\Marko\AppData\Roaming\Python\Python310\;C:\Users\Marko\AppData\Roaming\Python\Python310\site-packages;C:\Users\Marko\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\Marko\AppData\Local\Programs\Python\Python311\;C:\Users\Marko\AppData\Local\Microsoft\WindowsApps;C:\Users\Marko\.dotnet\tools;D:\Programme\Nmap;D:\Programme\MSYS2\mingw64\bin;D:\Programme\Microsoft VS Code\bin;D:\Programme\IntelliJ IDEA 2025.2.3\bin;C:\Users\Marko\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Users\Marko\AppData\Local\nvm;D:\Programme\Maven\bin;D:\Programme\Graphviz\bin;D:\Programme\Antigravity\bin;D:\Programme\Windsurf\bin;."/>
+    <property name="java.library.path" value="D:\Programme\JDK\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\QuickTime\QTSystem\;D:\Programe\Nmap;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Git\cmd;C:\Users\Marko\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\ProgramData\chocolatey\bin;C:\Program Files\GitHub CLI\;D:\Programme\JDK\bin;C:\Users\Marko\AppData\Roaming\Python\Python310\Scripts;C:\Users\Marko\AppData\Roaming\Python\Python310\;C:\Users\Marko\AppData\Roaming\Python\Python310\site-packages;C:\Users\Marko\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\Marko\AppData\Local\Programs\Python\Python311\;C:\Users\Marko\AppData\Local\Microsoft\WindowsApps;C:\Users\Marko\.dotnet\tools;D:\Programme\Nmap;D:\Programme\MSYS2\mingw64\bin;D:\Programme\Microsoft VS Code\bin;D:\Programme\IntelliJ IDEA 2025.2.3\bin;D:\Programme\Maven\bin;D:\Programme\Graphviz\bin;D:\Programme\Antigravity\bin;D:\Programme\Windsurf\bin;."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="Cp1252"/>
     <property name="java.vendor" value="Oracle Corporation"/>
@@ -58,5 +58,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="67.0"/>
   </properties>
-  <testcase name="testApp" classname="marko.AppTest" time="0.0"/>
+  <testcase name="testApp" classname="marko.AppTest" time="0.002"/>
 </testsuite>
